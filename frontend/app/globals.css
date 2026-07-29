@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-paper text-ink font-body;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(27, 42, 58, 0.06) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+
+  ::selection {
+    @apply bg-brass/30;
+  }
+
+  /* Visible keyboard focus everywhere, per accessibility requirement */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-brass;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm bg-ink px-5 py-2.5
+      font-body text-sm font-semibold text-paper transition-colors hover:bg-ink-soft
+      disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-sm border border-ink/20
+      bg-transparent px-5 py-2.5 font-body text-sm font-semibold text-ink transition-colors
+      hover:bg-ink/5 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .field-label {
+    @apply mb-1.5 block font-body text-xs font-semibold uppercase tracking-wider text-ink-soft;
+  }
+
+  .field-input {
+    @apply w-full rounded-sm border border-line bg-paper px-3.5 py-2.5 font-body text-ink
+      placeholder:text-ink-soft/50 focus:border-brass;
+  }
+
+  .card {
+    @apply rounded-sm border border-line bg-paper/60 shadow-[2px_2px_0_0_rgba(27,42,58,0.08)];
+  }
+
+  /* The signature "passport stamp" badge - used for the brand mark and day numbers */
+  .stamp {
+    @apply relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full
+      border-2 border-dashed border-brass font-display text-sm font-semibold text-brass-dark;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
