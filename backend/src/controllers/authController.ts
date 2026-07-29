@@ -17,10 +17,15 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+const isProduction = process.env.NODE_ENV === "production";
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax" as const,
+  // In production the frontend (vercel.app) and backend (onrender.com) are
+  // on entirely different domains, not just different ports like in local
+  // dev - a cross-site fetch will only carry the cookie if sameSite is
+  // "none", and browsers require "secure: true" whenever sameSite is "none".
+  secure: isProduction,
+  sameSite: (isProduction ? "none" : "lax") as "none" | "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 
