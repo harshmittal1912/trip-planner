@@ -41,6 +41,15 @@ trip-planner/
     └── lib/api.ts           # Axios client + shared types
 ```
 
+## Live deployment
+
+- **Frontend**: https://trip-planner-nu-ten.vercel.app
+- **Backend API**: https://trip-planner-yqpw.onrender.com (health check: `/api/health`)
+
+Note: the backend runs on Render's free tier, which spins down after periods
+of inactivity. The first request after idle time can take 30-60 seconds to
+respond while the instance wakes up — this is expected, not a bug.
+
 ## Setup — local development
 
 **Prerequisites:** Node.js 18+, a MongoDB instance (local or Atlas), a Google
@@ -77,7 +86,7 @@ Open `http://localhost:3000`, register an account, and plan a trip.
   and backend should be served over HTTPS in production so `secure: true`
   cookies are actually sent by the browser.
 
-> *(Fill in the actual deployment link here before submitting.)*
+- Frontend deploys to Vercel; backend deploys to Render. See "Live deployment" above for the actual URLs.
 
 ## Architecture
 
@@ -180,3 +189,14 @@ codebase — just one more prompt and one more schema.
 - No password reset / email verification flow.
 - The regenerate-day feature replaces one day per call; there's no
   "regenerate whole trip" or itinerary versioning/undo yet.
+- **Cross-domain auth quirk (found and fixed during deployment):** the
+  frontend (Vercel) and backend (Render) live on different domains in
+  production, not just different ports like in local dev. Safari blocks
+  third-party cookies across domains by default (Chrome does not), which
+  broke login on Safari specifically even though the httpOnly cookie worked
+  fine everywhere in local development. Fixed by having the frontend store
+  the JWT returned in the login/register response body and send it as a
+  `Authorization: Bearer` header on every request (via an axios interceptor),
+  rather than relying solely on the cookie. The cookie is still set as a
+  fallback for same-site setups, but the header is what the deployed app
+  actually depends on.
