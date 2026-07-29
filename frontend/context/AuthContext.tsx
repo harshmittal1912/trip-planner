@@ -8,7 +8,7 @@ import {
   ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
-import api, { User } from "@/lib/api";
+import api, { User, setStoredToken, clearStoredToken, getStoredToken } from "@/lib/api";
 
 interface AuthContextValue {
   user: User | null;
@@ -26,28 +26,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // On first load, ask the backend who (if anyone) the auth cookie belongs to.
+    // If we have a stored token from a previous session, the request
+    // interceptor in lib/api.ts will attach it automatically. If not, this
+    // still works via the cookie on same-site (local dev) setups.
+    if (!getStoredToken()) {
+      setIsLoading(false);
+      return;
+    }
     api
       .get("/auth/me")
       .then((res) => setUser(res.data.user))
-      .catch(() => setUser(null))
+      .catch(() => {
+        clearStoredToken();
+        setUser(null);
+      })
       .finally(() => setIsLoading(false));
   }, []);
 
   async function login(email: string, password: string) {
     const res = await api.post("/auth/login", { email, password });
+    setStoredToken(res.data.token);
     setUser(res.data.user);
     router.push("/dashboard");
   }
 
   async function register(name: string, email: string, password: string) {
     const res = await api.post("/auth/register", { name, email, password });
+    setStoredToken(res.data.token);
     setUser(res.data.user);
     router.push("/dashboard");
   }
 
   async function logout() {
-    await api.post("/auth/logout");
+    await api.post("/auth/logout").catch(() => {});
+    clearStoredToken();
     setUser(null);
     router.push("/login");
   }
